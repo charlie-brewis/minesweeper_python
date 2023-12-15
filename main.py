@@ -5,19 +5,35 @@ import random
 SQUARE_FILL_COLOR = "grey"
 SQUARE_BORDER_COLOR = "black"
 
+class Game:
+    def __init__(self, win_width: int, win_height: int) -> None:
+        self.__win = GraphWin("Minesweeper", win_width, win_height)
+        print("Game object intialised")
+    
+    def instantiate_board(self) -> None:
+        self.__board_object = Board(
+            win= self.__win,
+            square_size= 20,
+            chance_square_is_mine= 0.1,
+            board_color= "light grey"
+        )
+        print("Board object initialised")
+            
+    def main_loop(self) -> None:
+        while True:
+            click = self.__win.getMouse()
+            self.__board_object.click_board(click)
+
 class Board:
-    def __init__(self, win_width: int,
-                       win_height: int,
+    def __init__(self, win: GraphWin,
                        square_size: int,
                        chance_square_is_mine: float,
                        board_color: str) -> None:
         
-        self.__height = win_height
-        self.__width = win_width
+        self.__win = win
+        self.__height = self.__win.getHeight()
+        self.__width = self.__win.getWidth()
         self.__square_size = square_size
-        
-        self.__win = GraphWin("Minesweeper", self.__width, self.__height)
-
         self.__board_object = self.__draw_board(self.__width, self.__height, self.__square_size, chance_square_is_mine)
 
 
@@ -42,7 +58,7 @@ class Board:
     def __round_down_to_square_size(self, value: float) -> int:
         return int(floor(value / self.__square_size)) * self.__square_size
 
-    def __click_board(self, click: Point) -> None:
+    def click_board(self, click: Point) -> None:
         # Determine which square
         row_i, col_i = self.__determine_clicked_square_index(click)
         clicked_square = self.__board_object[row_i][col_i]
@@ -51,10 +67,7 @@ class Board:
         # If square is mine - game over
         # Else - square.click_square()
 
-    def main_loop(self) -> None:
-        while True:
-            click = self.__win.getMouse()
-            self.__click_board(click)
+
 
 
 
@@ -113,15 +126,9 @@ def main() -> None:
     # Define board parameters
     # Instantiate board
     # Gameplay loop
-    board_object = Board(
-        win_width= 300,
-        win_height= 300,
-        square_size= 20,
-        chance_square_is_mine= 0.1,
-        board_color= "light grey"
-    )
-    print("Board Instantiated Successfully")
-    board_object.main_loop()
+    game_object = Game(300, 300)
+    game_object.instantiate_board()
+    game_object.main_loop()
 
 if __name__ == '__main__':
     main()
