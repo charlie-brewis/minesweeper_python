@@ -1,4 +1,5 @@
 from graphics import *
+from math import floor
 import random
 
 SQUARE_FILL_COLOR = "grey"
@@ -17,7 +18,7 @@ class Board:
         
         self.__win = GraphWin("Minesweeper", self.__width, self.__height)
 
-        board = self.__draw_board(self.__width, self.__height, self.__square_size, chance_square_is_mine)
+        self.__board_object = self.__draw_board(self.__width, self.__height, self.__square_size, chance_square_is_mine)
 
         self.__win.getKey()
         self.__win.close()
@@ -31,6 +32,26 @@ class Board:
                 row.append(current_square)
             board.append(row)
         return board
+    
+    def __determine_clicked_square_index(self, click: Point) -> (int, int):
+        #Todo: could refactor function because multiplying by square size and then dividing
+        square_top_left_x = self.__round_down_to_square_size(click.getX())
+        square_top_left_y = self.__round_down_to_square_size(click.getY())
+        row_index = square_top_left_y // self.__square_size
+        column_index = square_top_left_x // self.__square_size
+        return (row_index, column_index)
+
+    def __round_down_to_square_size(self, value: float) -> int:
+        return int(floor(value / self.__square_size)) * self.__square_size
+
+    def __click_board(self, click: Point) -> None:
+        # Determine which square
+        row_i, col_i = self.__determine_clicked_square_index(click)
+        clicked_square = self.__board_object[row_i][col_i]
+        clicked_square.set_fill_color("green")
+        # If square is mine - game over
+        # Else - square.click_square()
+
 
 
 
@@ -48,10 +69,11 @@ class Square:
         self.__top_left_x = top_left_x
         self.__top_left_y = top_left_y
         self.__size = square_size
-        self.__is_mine = self.__determine_if_square_is_mine(chance_square_is_mine)
         self.__fill_color = square_fill_color
         self.__border_color = square_border_color
         self.__square_graphical_object = self.__instantiate_square_graphical_object(self.__top_left_x, self.__top_left_y, self.__size, self.__fill_color, self.__border_color) 
+        self.__is_mine = self.__determine_if_square_is_mine(chance_square_is_mine)
+        self.__is_clicked = False
         self.draw()
 
     def __determine_if_square_is_mine(self, chance_square_is_mine: float) -> bool:
