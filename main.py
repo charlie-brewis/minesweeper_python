@@ -19,7 +19,7 @@ class Board:
 
         board = self.__draw_board(self.__width, self.__height, self.__square_size, chance_square_is_mine)
 
-        self.__win.getKey('x')
+        self.__win.getKey()
         self.__win.close()
 
     def __draw_board(self, width: int, height: int, square_size: int, chance_square_is_mine: float) -> list[list[Rectangle]]:
