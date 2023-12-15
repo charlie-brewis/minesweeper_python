@@ -1,15 +1,21 @@
 from graphics import *
 import random
 
+SQUARE_FILL_COLOR = "grey"
+SQUARE_BORDER_COLOR = "black"
+
 class Board:
     def __init__(self, win_width: int,
                        win_height: int,
-                       num_rows: int,
-                       num_cols: int,
+                       square_size: int,
                        chance_square_is_mine: float,
                        board_color: str) -> None:
         
-        self.__win = GraphWin("Minesweeper", win_width, win_height)
+        self.__height = win_height
+        self.__width = win_width
+        self.__square_size = square_size
+        
+        self.__win = GraphWin("Minesweeper", self.__width, self.__height)
 
         # Instantiate squares
 
@@ -17,8 +23,14 @@ class Board:
         self.__win.getKey('x')
         self.__win.close()
 
-    def __create_board(self) -> list[list[Rectangle]]:
+    def __create_board(self, width: int, height: int, square_size: int, chance_square_is_mine: float) -> list[list[Rectangle]]:
         board = []
+        for y in range(0, width, square_size):
+            row = []
+            for x in range(0, height, square_size):
+                current_square = Square(self.__win, x, y, square_size, chance_square_is_mine, SQUARE_FILL_COLOR, SQUARE_BORDER_COLOR)
+                row.append()
+
 
 
 
@@ -31,6 +43,7 @@ class Square:
                        square_fill_color: str,
                        square_border_color: str) -> None:
         
+        self.__win = win
         self.__top_left_x = top_left_x
         self.__top_left_y = top_left_y
         self.__size = square_size
@@ -60,9 +73,12 @@ class Square:
     def get_top_left_point(self) -> Point:
         return self.__square_graphical_object.getP1()
     
-    def set_color(self, new_color: str) -> None:
+    # Note: set methods do not redraw the square, this must be done seperately
+    def set_fill_color(self, new_color: str) -> None:
         self.__square_graphical_object.setFill(new_color)
-        self.draw()
+
+    def set_border_color(self, new_color: str) -> None:
+        self.__square_graphical_object.setOutline(new_color)
 
 
 def main() -> None:
