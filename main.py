@@ -20,8 +20,6 @@ class Board:
 
         self.__board_object = self.__draw_board(self.__width, self.__height, self.__square_size, chance_square_is_mine)
 
-        self.__win.getKey()
-        self.__win.close()
 
     def __draw_board(self, width: int, height: int, square_size: int, chance_square_is_mine: float) -> list[list[Rectangle]]:
         board = []
@@ -49,7 +47,7 @@ class Board:
         row_i, col_i = self.__determine_clicked_square_index(click)
         clicked_square = self.__board_object[row_i][col_i]
         clicked_square.set_fill_color("green")
-        clicked_square.draw()
+        clicked_square.redraw()
         # If square is mine - game over
         # Else - square.click_square()
 
@@ -80,7 +78,7 @@ class Square:
         self.__square_graphical_object = self.__instantiate_square_graphical_object(self.__top_left_x, self.__top_left_y, self.__size, self.__fill_color, self.__border_color) 
         self.__is_mine = self.__determine_if_square_is_mine(chance_square_is_mine)
         self.__is_clicked = False
-        self.draw()
+        self.__square_graphical_object.draw()
 
     def __determine_if_square_is_mine(self, chance_square_is_mine: float) -> bool:
         return random.random() < chance_square_is_mine
@@ -93,7 +91,7 @@ class Square:
         square_graphical_object.setOutline(square_border_color)
         return square_graphical_object
     
-    def draw(self) -> None:
+    def redraw(self) -> None:
         self.__square_graphical_object.draw(self.__win)
 
     def get_is_mine(self) -> bool:
