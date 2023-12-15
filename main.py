@@ -17,19 +17,20 @@ class Board:
         
         self.__win = GraphWin("Minesweeper", self.__width, self.__height)
 
-        # Instantiate squares
-
+        board = self.__draw_board(self.__width, self.__height, self.__square_size, chance_square_is_mine)
 
         self.__win.getKey('x')
         self.__win.close()
 
-    def __create_board(self, width: int, height: int, square_size: int, chance_square_is_mine: float) -> list[list[Rectangle]]:
+    def __draw_board(self, width: int, height: int, square_size: int, chance_square_is_mine: float) -> list[list[Rectangle]]:
         board = []
         for y in range(0, width, square_size):
             row = []
             for x in range(0, height, square_size):
                 current_square = Square(self.__win, x, y, square_size, chance_square_is_mine, SQUARE_FILL_COLOR, SQUARE_BORDER_COLOR)
-                row.append()
+                row.append(current_square)
+            board.append(row)
+        return board
 
 
 
@@ -85,7 +86,13 @@ def main() -> None:
     # Define board parameters
     # Instantiate board
     # Gameplay loop
-    pass
+    board_object = Board(
+        win_width= 300,
+        win_height= 300,
+        square_size= 20,
+        chance_square_is_mine= 0.1,
+        board_color= "light grey"
+    )
 
 if __name__ == '__main__':
     main()
