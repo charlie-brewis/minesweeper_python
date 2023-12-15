@@ -121,6 +121,7 @@ def main() -> None:
         chance_square_is_mine= 0.1,
         board_color= "light grey"
     )
+    print("Board Instantiated Successfully")
     board_object.main_loop()
 
 if __name__ == '__main__':
