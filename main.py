@@ -7,12 +7,15 @@ class Board:
                        num_cols: int,
                        chance_square_is_mine: float) -> None:
         
-        self.win = GraphWin("Minesweeper", win_width, win_height)
+        self.__win = GraphWin("Minesweeper", win_width, win_height)
 
         # Instantiate squares
 
-        self.win.getKey('x')
-        self.win.close()
+        self.__win.getKey('x')
+        self.__win.close()
+
+
+
          
 
 def main() -> None:
