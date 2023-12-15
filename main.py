@@ -78,7 +78,7 @@ class Square:
         self.__square_graphical_object = self.__instantiate_square_graphical_object(self.__top_left_x, self.__top_left_y, self.__size, self.__fill_color, self.__border_color) 
         self.__is_mine = self.__determine_if_square_is_mine(chance_square_is_mine)
         self.__is_clicked = False
-        self.__square_graphical_object.draw()
+        self.__square_graphical_object.draw(self.__win)
 
     def __determine_if_square_is_mine(self, chance_square_is_mine: float) -> bool:
         return random.random() < chance_square_is_mine
@@ -92,6 +92,7 @@ class Square:
         return square_graphical_object
     
     def redraw(self) -> None:
+        self.__square_graphical_object.undraw()
         self.__square_graphical_object.draw(self.__win)
 
     def get_is_mine(self) -> bool:
