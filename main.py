@@ -62,26 +62,36 @@ class Board:
     
     def __test_square_recursion(self, row_i: int, col_i: int) -> None:
         square = self.__board_object[row_i][col_i]
-        is_mine = square.test()        
-        if is_mine:
+        is_mine = square.get_is_mine()        
+        if not is_mine:
+            print("is not mine")
             # t, tr, r, br, b, bl, l, tl
-            #TODO: Im sure there is a much better way to do this, maybe with dicts or cases?
-            if row_i != 0:
-                self.__click_square_recursion(row_i - 1, col_i)
-            if row_i != 0 and col_i != self.__last_col_i:
-                self.__click_square_recursion(row_i - 1, col_i + 1)
-            if col_i != self.__last_col_i:
-                self.__click_square_recursion(row_i, col_i + 1)
-            if row_i != self.__last_row_i and col_i != self.__last_col_i:
-                self.__click_square_recursion(row_i + 1, col_i + 1)
-            if row_i != self.__last_row_i:
-                self.__click_square_recursion(row_i + 1, col_i)
-            if row_i != self.__last_row_i and col_i != 0:
-                self.__click_square_recursion(row_i + 1, col_i - 1)
-            if col_i != 0:
-                self.__click_square_recursion(row_i, col_i - 1)
-            if row_i != 0 and col_i != 0:
-                self.__click_square_recursion(row_i - 1, col_i - 1)
+            recursion_args = [
+                (row_i - 1, col_i),
+                (row_i - 1, col_i + 1),
+                (row_i , col_i + 1),
+                (row_i + 1, col_i + 1),
+                (row_i + 1, col_i),
+                (row_i + 1, col_i - 1),
+                (row_i , col_i - 1),
+                (row_i - 1, col_i - 1),
+            ]
+            conditions = [
+                row_i != 0,
+                row_i != 0 and col_i != self.__last_col_i,
+                col_i != self.__last_col_i,
+                row_i != self.__last_row_i and col_i != self.__last_col_i,
+                row_i != self.__last_row_i,
+                row_i != self.__last_row_i and col_i != 0,
+                col_i != 0,
+                row_i != 0 and col_i != 0
+            ]
+            for x in range(7):
+                if conditions[x]:
+                    self.__test_square_recursion(*recursion_args[x])
+                    
+
+
 
     def click_board(self, click: Point) -> None:
         # Determine which square
@@ -131,14 +141,13 @@ class Square:
         square_graphical_object.setOutline(square_border_color)
         return square_graphical_object
     
-    def test(self):
+    def reveal(self):
         is_mine = self.get_is_mine()
         if is_mine:
             self.set_fill_color("red")
         else:
             self.set_fill_color("green")
         self.redraw()
-        return is_mine
     
     def redraw(self) -> None:
         self.__square_graphical_object.undraw()
