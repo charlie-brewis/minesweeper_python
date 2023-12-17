@@ -35,8 +35,8 @@ class Board:
         self.__width = self.__win.getWidth()
         self.__square_size = square_size
         self.__board_object = self.__draw_board(self.__width, self.__height, self.__square_size, chance_square_is_mine)
-        self.__last_row_i = self.__height // self.__square_size
-        self.__last_col_i = self.__width // self.__square_size
+        self.__last_row_i = self.__height // self.__square_size - 1
+        self.__last_col_i = self.__width // self.__square_size - 1
 
 
     def __draw_board(self, width: int, height: int, square_size: int, chance_square_is_mine: float) -> list[list[Rectangle]]:
@@ -63,8 +63,9 @@ class Board:
     def __test_square_recursion(self, row_i: int, col_i: int) -> None:
         square = self.__board_object[row_i][col_i]
         is_mine = square.get_is_mine()        
-        if not is_mine:
+        if not is_mine and not square.get_is_revealed():
             print("is not mine")
+            square.reveal()
             # t, tr, r, br, b, bl, l, tl
             recursion_args = [
                 (row_i - 1, col_i),
@@ -89,13 +90,17 @@ class Board:
             for x in range(7):
                 if conditions[x]:
                     self.__test_square_recursion(*recursion_args[x])
-                    
+
+
 
 
 
     def click_board(self, click: Point) -> None:
         # Determine which square
         row_i, col_i = self.__determine_clicked_square_index(click)
+        square = self.__board_object[row_i][col_i]
+        if square.get_is_mine():
+            square.reveal()
         self.__test_square_recursion(row_i, col_i)
         # clicked_square = self.__board_object[row_i][col_i]
         # is_mine = clicked_square.test()
@@ -127,7 +132,7 @@ class Square:
         self.__border_color = square_border_color
         self.__square_graphical_object = self.__instantiate_square_graphical_object(self.__top_left_x, self.__top_left_y, self.__size, self.__fill_color, self.__border_color) 
         self.__is_mine = self.__determine_if_square_is_mine(chance_square_is_mine)
-        self.__is_clicked = False
+        self.__is_revealed = False
         self.__square_graphical_object.draw(self.__win)
 
     def __determine_if_square_is_mine(self, chance_square_is_mine: float) -> bool:
@@ -142,6 +147,7 @@ class Square:
         return square_graphical_object
     
     def reveal(self):
+        self.__is_revealed = True
         is_mine = self.get_is_mine()
         if is_mine:
             self.set_fill_color("red")
@@ -158,6 +164,9 @@ class Square:
     
     def get_top_left_point(self) -> Point:
         return self.__square_graphical_object.getP1()
+    
+    def get_is_revealed(self) -> bool:
+        return self.__is_revealed
     
     # Note: set methods do not redraw the square, this must be done seperately
     def set_fill_color(self, new_color: str) -> None:
