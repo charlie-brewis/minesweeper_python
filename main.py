@@ -62,7 +62,10 @@ class Board:
         # Determine which square
         row_i, col_i = self.__determine_clicked_square_index(click)
         clicked_square = self.__board_object[row_i][col_i]
-        clicked_square.set_fill_color("green")
+        if clicked_square.get_is_mine():
+            clicked_square.set_fill_color("red")
+        else:
+            clicked_square.set_fill_color("green")
         clicked_square.redraw()
         # If square is mine - game over
         # Else - square.click_square()
