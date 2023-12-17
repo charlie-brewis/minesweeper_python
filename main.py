@@ -90,6 +90,12 @@ class Board:
             for x in range(7):
                 if conditions[x]:
                     self.__test_square_recursion(*recursion_args[x])
+                    
+    def __determine_square_number(self, row_i: int, col_i: int) -> int:
+
+        for x in range(7):
+            if conditions[x] and :
+
 
 
 
