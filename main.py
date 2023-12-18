@@ -32,12 +32,27 @@ class Game:
 
     def game_over_screen(self, score: int) -> bool:
         center_x, center_y = self.__win_width // 2, self.__win_height // 2
-        game_over_message = Text(Point(center_x, center_y - (self.__win_height // 4)), "GAME OVER")
+        game_over_message = Text(Point(center_x, center_y - (self.__win_height // 4)), f"GAME OVER\n SCORE: {score}")
         game_over_message.setSize(20)
         game_over_message.draw(self.__win)
-        instructions_message = Text(Point(center_x, center_y + (self.__win_height // 4)), "Click the box to restart or anywhere else to close")
+
+        instructions_message = Text(Point(center_x, center_y + (self.__win_height // 5)), "Click the box to restart or anywhere else to close")
         instructions_message.setSize(10)
         instructions_message.draw(self.__win)
+
+        restart_box_tl = Point(center_x - (self.__win_width // 3), center_y - (self.__win_height // 10))
+        restart_box_br = Point(center_x + (self.__win_width // 3), center_y + (self.__win_height // 10))
+        restart_box = Rectangle(restart_box_tl, restart_box_br)
+        restart_box.setFill("yellow")
+        restart_box.setOutline("black")
+        restart_box.draw(self.__win)
+
+        #TODO: can maybe simplify this maths
+        restart_box_center_x = restart_box_tl.getX() + (restart_box_br.getX() - restart_box_tl.getX()) // 2
+        restart_box_center_y = restart_box_tl.getY() + (restart_box_br.getY() - restart_box_tl.getY()) // 2
+        restart_message = Text(Point(restart_box_center_x, restart_box_center_y), "RESTART")
+        restart_message.setSize(15)
+        restart_message.draw(self.__win)
         self.__win.getMouse()
 
 
@@ -229,7 +244,7 @@ def main() -> None:
     game_object = Game(300, 300)
     game_object.instantiate_board()
     score = game_object.main_loop()
-    game_object.game_over_screen()
+    game_object.game_over_screen(score)
 
 if __name__ == '__main__':
     main()
