@@ -7,6 +7,8 @@ SQUARE_BORDER_COLOR = "black"
 
 class Game:
     def __init__(self, win_width: int, win_height: int) -> None:
+        self.__win_width = win_width
+        self.__win_height = win_height
         self.__win = GraphWin("Minesweeper", win_width, win_height)
         print("Game object intialised")
     
@@ -19,11 +21,25 @@ class Game:
         )
         print("Board object initialised")
             
-    def main_loop(self) -> None:
+    def main_loop(self) -> int:
         running = True
+        score = 0
         while running:
             click = self.__win.getMouse()
             running = self.__board_object.click_board(click)
+            score += 1
+        return score - 1
+
+    def game_over_screen(self, score: int) -> bool:
+        center_x, center_y = self.__win_width // 2, self.__win_height // 2
+        game_over_message = Text(Point(center_x, center_y - (self.__win_height // 4)), "GAME OVER")
+        game_over_message.setSize(20)
+        game_over_message.draw(self.__win)
+        instructions_message = Text(Point(center_x, center_y + (self.__win_height // 4)), "Click the box to restart or anywhere else to close")
+        instructions_message.setSize(10)
+        instructions_message.draw(self.__win)
+        self.__win.getMouse()
+
 
 class Board:
     def __init__(self, win: GraphWin,
@@ -134,13 +150,6 @@ class Board:
         # Else - square.click_square()
 
 
-
-
-
-
-
-
-
 class Square:
     def __init__(self, win: GraphWin,
                        top_left_x: int, 
@@ -219,7 +228,8 @@ def main() -> None:
     # Gameplay loop
     game_object = Game(300, 300)
     game_object.instantiate_board()
-    game_object.main_loop()
+    score = game_object.main_loop()
+    game_object.game_over_screen()
 
 if __name__ == '__main__':
     main()
