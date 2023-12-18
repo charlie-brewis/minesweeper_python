@@ -20,9 +20,10 @@ class Game:
         print("Board object initialised")
             
     def main_loop(self) -> None:
-        while True:
+        running = True
+        while running:
             click = self.__win.getMouse()
-            self.__board_object.click_board(click)
+            running = self.__board_object.click_board(click)
 
 class Board:
     def __init__(self, win: GraphWin,
@@ -120,15 +121,15 @@ class Board:
                         self.__test_square_recursion(*recursion_args[x])
                     
 
-    def click_board(self, click: Point) -> None:
+    def click_board(self, click: Point) -> bool:
         # Determine which square
         row_i, col_i = self.__determine_clicked_square_index(click)
         square = self.__board_object[row_i][col_i]
         if square.get_is_mine():
             square.reveal()
+            return False
         self.__test_square_recursion(row_i, col_i)
-        # clicked_square = self.__board_object[row_i][col_i]
-        # is_mine = clicked_square.test()
+        return True
         # If square is mine - game over
         # Else - square.click_square()
 
