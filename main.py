@@ -53,7 +53,18 @@ class Game:
         restart_message = Text(Point(restart_box_center_x, restart_box_center_y), "RESTART")
         restart_message.setSize(15)
         restart_message.draw(self.__win)
-        self.__win.getMouse()
+
+        click = self.__win.getMouse()
+        click_x, click_y = click.getX(), click.getY()
+        return all([
+            click_x >= restart_box_tl.getX(),
+            click_x <= restart_box_br.getX(),
+            click_y >= restart_box_tl.getY(),
+            click_y <= restart_box_br.getY()
+        ])
+    
+    def close_window(self) -> None:
+        self.__win.close()
 
 
 class Board:
@@ -238,13 +249,17 @@ class Square:
 
 
 def main() -> None:
+    play_again = True
+    while play_again:
     # Define board parameters
     # Instantiate board
     # Gameplay loop
-    game_object = Game(300, 300)
-    game_object.instantiate_board()
-    score = game_object.main_loop()
-    game_object.game_over_screen(score)
+        game_object = Game(300, 300)
+        game_object.instantiate_board()
+        score = game_object.main_loop()
+        play_again = game_object.game_over_screen(score)
+        game_object.close_window()
+
 
 if __name__ == '__main__':
     main()
