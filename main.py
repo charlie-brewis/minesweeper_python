@@ -198,7 +198,7 @@ class Square:
             self.set_fill_color("green")
         self.redraw()
         # print(self.__number)
-        if self.get_number() != -1:
+        if self.get_number() > 0:
             h_size = self.__size // 2
             Text(Point(self.__top_left_x + h_size, self.__top_left_y + h_size), self.get_number()).draw(self.__win)
     
