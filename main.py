@@ -1,23 +1,23 @@
 from graphics import *
 from math import floor
-import random
+from random import random
 
 SQUARE_FILL_COLOR = "grey"
 SQUARE_BORDER_COLOR = "black"
 
 class Game:
-    def __init__(self, win_width: int, win_height: int) -> None:
-        self.__win_width = win_width
-        self.__win_height = win_height
-        self.__win = GraphWin("Minesweeper", win_width, win_height)
+    def __init__(self) -> None:
         print("Game object intialised")
     
-    def instantiate_board(self) -> None:
+    def instantiate_board(self, board_size: int, num_squares: int, mine_chance: float) -> None:
+        self.__win_size = board_size
+        # Note num_squares is the number of squares along the axis, i.e., the board is num_squares x num_squaresa
+        self.__num_squares = num_squares
+        self.__win = GraphWin("Minesweeper", self.__win_size, self.__win_size)
         self.__board_object = Board(
             win= self.__win,
-            square_size= 20,
-            chance_square_is_mine= 0.1,
-            board_color= "light grey"
+            square_size= self.__win_size // self.__num_squares,
+            chance_square_is_mine= mine_chance,
         )
         print("Board object initialised")
             
@@ -31,17 +31,17 @@ class Game:
         return score - 1
 
     def game_over_screen(self, score: int) -> bool:
-        center_x, center_y = self.__win_width // 2, self.__win_height // 2
-        game_over_message = Text(Point(center_x, center_y - (self.__win_height // 4)), f"GAME OVER\n SCORE: {score}")
+        center_x, center_y = self.__win_size // 2, self.__win_size // 2
+        game_over_message = Text(Point(center_x, center_y - (self.__win_size // 4)), f"GAME OVER\n SCORE: {score}")
         game_over_message.setSize(20)
         game_over_message.draw(self.__win)
 
-        instructions_message = Text(Point(center_x, center_y + (self.__win_height // 5)), "Click the box to restart or anywhere else to close")
+        instructions_message = Text(Point(center_x, center_y + (self.__win_size // 5)), "Click the box to restart or anywhere else to close")
         instructions_message.setSize(10)
         instructions_message.draw(self.__win)
 
-        restart_box_tl = Point(center_x - (self.__win_width // 3), center_y - (self.__win_height // 10))
-        restart_box_br = Point(center_x + (self.__win_width // 3), center_y + (self.__win_height // 10))
+        restart_box_tl = Point(center_x - (self.__win_size // 3), center_y - (self.__win_size // 10))
+        restart_box_br = Point(center_x + (self.__win_size // 3), center_y + (self.__win_size // 10))
         restart_box = Rectangle(restart_box_tl, restart_box_br)
         restart_box.setFill("yellow")
         restart_box.setOutline("black")
@@ -70,8 +70,7 @@ class Game:
 class Board:
     def __init__(self, win: GraphWin,
                        square_size: int,
-                       chance_square_is_mine: float,
-                       board_color: str) -> None:
+                       chance_square_is_mine: float) -> None:
         
         self.__win = win
         self.__height = self.__win.getHeight()
@@ -198,7 +197,7 @@ class Square:
         self.__number = -1
 
     def __determine_if_square_is_mine(self, chance_square_is_mine: float) -> bool:
-        return random.random() < chance_square_is_mine
+        return random() < chance_square_is_mine
     
     def __instantiate_square_graphical_object(self, top_left_x: int, top_left_y: int, square_size: int, square_fill_color: str, square_border_color: str) -> Rectangle:
         top_left_point = Point(top_left_x, top_left_y)
@@ -254,8 +253,12 @@ def main() -> None:
     # Define board parameters
     # Instantiate board
     # Gameplay loop
-        game_object = Game(300, 300)
-        game_object.instantiate_board()
+        game_object = Game()
+        game_object.instantiate_board(
+            board_size= 1000,
+            num_squares= 16,
+            mine_chance= 0.2
+            )
         score = game_object.main_loop()
         play_again = game_object.game_over_screen(score)
         game_object.close_window()
