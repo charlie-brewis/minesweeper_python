@@ -34,9 +34,10 @@ class Board:
         self.__height = self.__win.getHeight()
         self.__width = self.__win.getWidth()
         self.__square_size = square_size
-        self.__board_object = self.__draw_board(self.__width, self.__height, self.__square_size, chance_square_is_mine)
         self.__last_row_i = self.__height // self.__square_size - 1
         self.__last_col_i = self.__width // self.__square_size - 1
+        self.__board_object = self.__draw_board(self.__width, self.__height, self.__square_size, chance_square_is_mine)
+        self.__determine_all_square_numbers()
 
 
     def __draw_board(self, width: int, height: int, square_size: int, chance_square_is_mine: float) -> list[list[Rectangle]]:
@@ -48,6 +49,41 @@ class Board:
                 row.append(current_square)
             board.append(row)
         return board
+    
+    def __determine_all_square_numbers(self):
+        for row_i in range(0, self.__last_row_i):
+            for col_i in range(0, self.__last_col_i):
+                border_square_indexes = [
+                    (row_i - 1, col_i),
+                    (row_i - 1, col_i + 1),
+                    (row_i , col_i + 1),
+                    (row_i + 1, col_i + 1),
+                    (row_i + 1, col_i),
+                    (row_i + 1, col_i - 1),
+                    (row_i , col_i - 1),
+                    (row_i - 1, col_i - 1),
+                ]
+                square = self.__board_object[row_i][col_i]
+                if square.get_is_mine():
+                    continue
+                square_num = 0
+                for adjacent_square_row_i, adjacent_square_col_i in border_square_indexes:
+                    if self.__check_square_in_bounds(adjacent_square_row_i, adjacent_square_col_i):
+                        adjacent_square = self.__board_object[adjacent_square_row_i][adjacent_square_col_i]
+                        if adjacent_square.get_is_mine():
+                            square_num += 1
+                square.set_number(square_num)
+
+    def __check_square_in_bounds(self, row_i: int, col_i: int) -> bool:
+        in_bounds_conditions = [
+            row_i >= 0,
+            row_i <= self.__last_row_i,
+            col_i >= 0,
+            col_i <= self.__last_col_i
+        ]
+        return all(in_bounds_conditions)
+
+
     
     def __determine_clicked_square_index(self, click: Point) -> (int, int):
         #Todo: could refactor function because multiplying by square size and then dividing
@@ -77,7 +113,7 @@ class Board:
                 (row_i , col_i - 1),
                 (row_i - 1, col_i - 1),
             ]
-            conditions = [
+            bound_conditions = [
                 row_i != 0,
                 row_i != 0 and col_i != self.__last_col_i,
                 col_i != self.__last_col_i,
@@ -87,15 +123,15 @@ class Board:
                 col_i != 0,
                 row_i != 0 and col_i != 0
             ]
-            for x in range(7):
-                if conditions[x]:
-                    self.__test_square_recursion(*recursion_args[x])
+            
+            square_num = square.get_number()
+
+            if square_num == 0:
+                for x in range(7):
+                    if bound_conditions[x]:
+                        self.__test_square_recursion(*recursion_args[x])
                     
-    def __determine_square_number(self, row_i: int, col_i: int) -> int:
-
-        for x in range(7):
-            if conditions[x] and :
-
+        
 
 
 
@@ -140,6 +176,7 @@ class Square:
         self.__is_mine = self.__determine_if_square_is_mine(chance_square_is_mine)
         self.__is_revealed = False
         self.__square_graphical_object.draw(self.__win)
+        self.__number = -1
 
     def __determine_if_square_is_mine(self, chance_square_is_mine: float) -> bool:
         return random.random() < chance_square_is_mine
@@ -160,6 +197,10 @@ class Square:
         else:
             self.set_fill_color("green")
         self.redraw()
+        # print(self.__number)
+        if self.get_number() != -1:
+            h_size = self.__size // 2
+            Text(Point(self.__top_left_x + h_size, self.__top_left_y + h_size), self.get_number()).draw(self.__win)
     
     def redraw(self) -> None:
         self.__square_graphical_object.undraw()
@@ -174,12 +215,18 @@ class Square:
     def get_is_revealed(self) -> bool:
         return self.__is_revealed
     
+    def get_number(self) -> int:
+        return self.__number
+    
     # Note: set methods do not redraw the square, this must be done seperately
     def set_fill_color(self, new_color: str) -> None:
         self.__square_graphical_object.setFill(new_color)
 
     def set_border_color(self, new_color: str) -> None:
         self.__square_graphical_object.setOutline(new_color)
+
+    def set_number(self, new_number: int) -> None:
+        self.__number = new_number
 
 
 def main() -> None:
