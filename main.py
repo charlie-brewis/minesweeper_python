@@ -100,9 +100,9 @@ class Board:
         square = self.__board_object[row_i][col_i]
         is_mine = square.get_is_mine()        
         if not is_mine and not square.get_is_revealed():
-            print("is not mine")
             square.reveal()
             # t, tr, r, br, b, bl, l, tl
+            #TODO: maybe a way to refactor this so we dont have repeating code in the determine all square numbers method
             recursion_args = [
                 (row_i - 1, col_i),
                 (row_i - 1, col_i + 1),
@@ -113,29 +113,12 @@ class Board:
                 (row_i , col_i - 1),
                 (row_i - 1, col_i - 1),
             ]
-            bound_conditions = [
-                row_i != 0,
-                row_i != 0 and col_i != self.__last_col_i,
-                col_i != self.__last_col_i,
-                row_i != self.__last_row_i and col_i != self.__last_col_i,
-                row_i != self.__last_row_i,
-                row_i != self.__last_row_i and col_i != 0,
-                col_i != 0,
-                row_i != 0 and col_i != 0
-            ]
-            
             square_num = square.get_number()
-
             if square_num == 0:
                 for x in range(7):
-                    if bound_conditions[x]:
+                    if self.__check_square_in_bounds(*recursion_args[x]):
                         self.__test_square_recursion(*recursion_args[x])
                     
-        
-
-
-
-
 
     def click_board(self, click: Point) -> None:
         # Determine which square
