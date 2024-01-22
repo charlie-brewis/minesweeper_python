@@ -28,7 +28,7 @@ class Game:
         score = 0
         while running:
             click = self.__win.getMouse()
-            running = self.__board_object.click_board(click)
+            running = not self.__board_object.click_board(click)
             score += 1
         return score - 1
 
@@ -96,9 +96,9 @@ class Board:
         return board
     
     def __determine_all_square_numbers(self):
-        #! Squares on bottom row are only getting 0 assigned, they are in bound.
-        for row_i in range(0, self.__last_row_i):
-            for col_i in range(0, self.__last_col_i):
+        for row_i in range(0, self.__last_row_i + 1):
+            for col_i in range(0, self.__last_col_i + 1):
+                #! Surely there is someway we can define this outside the loop?
                 border_square_indexes = [
                     (row_i - 1, col_i),
                     (row_i - 1, col_i + 1),
@@ -111,6 +111,7 @@ class Board:
                 ]
                 square = self.__board_object[row_i][col_i]
                 if square.get_is_mine():
+                    print(square.get_number(), end=' ')
                     continue
                 square_num = 0
                 for adjacent_square_row_i, adjacent_square_col_i in border_square_indexes:
@@ -119,6 +120,8 @@ class Board:
                         if adjacent_square.get_is_mine():
                             square_num += 1
                 square.set_number(square_num)
+                print(square.get_number(), end=' ')
+            print("")
 
     def __check_square_in_bounds(self, row_i: int, col_i: int) -> bool:
         in_bounds_conditions = [
@@ -129,8 +132,6 @@ class Board:
         ]
         return all(in_bounds_conditions)
 
-
-    
     def __determine_clicked_square_index(self, click: Point) -> (int, int):
         #Todo: could refactor function because multiplying by square size and then dividing
         square_top_left_x = self.__round_down_to_square_size(click.getX())
@@ -142,14 +143,15 @@ class Board:
     def __round_down_to_square_size(self, value: float) -> int:
         return int(floor(value / self.__square_size)) * self.__square_size
     
-    def __test_square_recursion(self, row_i: int, col_i: int) -> None:
+
+    def __open_square(self, row_i: int, col_i: int) -> None:
         square = self.__board_object[row_i][col_i]
-        is_mine = square.get_is_mine()        
-        if not is_mine and not square.get_is_revealed():
-            square.reveal()
-            # t, tr, r, br, b, bl, l, tl
-            #TODO: maybe a way to refactor this so we dont have repeating code in the determine all square numbers method
-            recursion_args = [
+        square_num = square.open()
+        # if square_num < 0:
+        #     # Game over
+        #     pass
+        if square_num == 0:
+            bounding_indexes = [
                 (row_i - 1, col_i),
                 (row_i - 1, col_i + 1),
                 (row_i , col_i + 1),
@@ -159,22 +161,25 @@ class Board:
                 (row_i , col_i - 1),
                 (row_i - 1, col_i - 1),
             ]
-            square_num = square.get_number()
-            if square_num == 0:
-                for x in range(7):
-                    if self.__check_square_in_bounds(*recursion_args[x]):
-                        self.__test_square_recursion(*recursion_args[x])
+            for adjacent_square_row_i, adjacent_square_col_i in bounding_indexes:
+                if self.__check_square_in_bounds(adjacent_square_row_i, adjacent_square_col_i) and not self.__board_object[adjacent_square_row_i][adjacent_square_col_i].get_is_revealed():
+                    self.__open_square(adjacent_square_row_i, adjacent_square_col_i)
+
+
                     
 
     def click_board(self, click: Point) -> bool:
         # Determine which square
         row_i, col_i = self.__determine_clicked_square_index(click)
-        square = self.__board_object[row_i][col_i]
-        if square.get_is_mine():
-            square.reveal()
-            return False
-        self.__test_square_recursion(row_i, col_i)
-        return True
+        is_mine = self.__open_square(row_i, col_i)
+        return is_mine
+
+        # square = self.__board_object[row_i][col_i]
+        # if square.get_is_mine():
+        #     square.open()
+        #     return False
+        # self.__test_square_recursion(row_i, col_i)
+        # return True
         # If square is mine - game over
         # Else - square.click_square()
 
@@ -211,7 +216,7 @@ class Square:
         square_graphical_object.setOutline(square_border_color)
         return square_graphical_object
     
-    def reveal(self):
+    def open(self):
         self.__is_revealed = True
         is_mine = self.get_is_mine()
         if is_mine:
@@ -219,10 +224,11 @@ class Square:
         else:
             self.set_fill_color("green")
         self.redraw()
-        # print(self.__number)
-        if self.get_number() > 0:
+        num_mined_neighbors = self.get_number()
+        if num_mined_neighbors > 0:
             h_size = self.__size // 2
             Text(Point(self.__top_left_x + h_size, self.__top_left_y + h_size), self.get_number()).draw(self.__win)
+        return num_mined_neighbors
     
     def redraw(self) -> None:
         self.__square_graphical_object.undraw()
@@ -259,8 +265,8 @@ def main() -> None:
     # Gameplay loop
         game_object = Game()
         game_object.instantiate_board(
-            board_size= 1000,
-            num_squares= 16,
+            board_size= 500,
+            num_squares= 8,
             mine_chance= 0.1
             )
         score = game_object.main_loop()
