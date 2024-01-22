@@ -13,6 +13,8 @@ class Game:
         self.__win_size = board_size
         # Note num_squares is the number of squares along the axis, i.e., the board is num_squares x num_squaresa
         self.__num_squares = num_squares
+        # Ensures that the squares tile neatly
+        self.__win_size -= self.__win_size % self.__num_squares
         self.__win = GraphWin("Minesweeper", self.__win_size, self.__win_size)
         self.__board_object = Board(
             win= self.__win,
@@ -78,6 +80,7 @@ class Board:
         self.__square_size = square_size
         self.__last_row_i = self.__height // self.__square_size - 1
         self.__last_col_i = self.__width // self.__square_size - 1
+        print(self.__last_col_i)
         self.__board_object = self.__draw_board(self.__width, self.__height, self.__square_size, chance_square_is_mine)
         self.__determine_all_square_numbers()
 
@@ -93,6 +96,7 @@ class Board:
         return board
     
     def __determine_all_square_numbers(self):
+        #! Squares on bottom row are only getting 0 assigned, they are in bound.
         for row_i in range(0, self.__last_row_i):
             for col_i in range(0, self.__last_col_i):
                 border_square_indexes = [
@@ -257,7 +261,7 @@ def main() -> None:
         game_object.instantiate_board(
             board_size= 1000,
             num_squares= 16,
-            mine_chance= 0.2
+            mine_chance= 0.1
             )
         score = game_object.main_loop()
         play_again = game_object.game_over_screen(score)
