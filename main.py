@@ -30,6 +30,7 @@ class Game:
             click = self.__win.getMouse()
             running = not self.__board_object.click_board(click)
             score += 1
+        print(score)
         return score - 1
 
     def game_over_screen(self, score: int) -> bool:
@@ -80,7 +81,6 @@ class Board:
         self.__square_size = square_size
         self.__last_row_i = self.__height // self.__square_size - 1
         self.__last_col_i = self.__width // self.__square_size - 1
-        print(self.__last_col_i)
         self.__board_object = self.__draw_board(self.__width, self.__height, self.__square_size, chance_square_is_mine)
         self.__determine_all_square_numbers()
 
@@ -111,7 +111,7 @@ class Board:
                 ]
                 square = self.__board_object[row_i][col_i]
                 if square.get_is_mine():
-                    print(square.get_number(), end=' ')
+                    # print(square.get_number(), end=' ')
                     continue
                 square_num = 0
                 for adjacent_square_row_i, adjacent_square_col_i in border_square_indexes:
@@ -120,8 +120,8 @@ class Board:
                         if adjacent_square.get_is_mine():
                             square_num += 1
                 square.set_number(square_num)
-                print(square.get_number(), end=' ')
-            print("")
+            #     print(square.get_number(), end=' ')
+            # print("")
 
     def __check_square_in_bounds(self, row_i: int, col_i: int) -> bool:
         in_bounds_conditions = [
@@ -144,12 +144,12 @@ class Board:
         return int(floor(value / self.__square_size)) * self.__square_size
     
 
-    def __open_square(self, row_i: int, col_i: int) -> None:
+    def __open_square(self, row_i: int, col_i: int) -> bool:
         square = self.__board_object[row_i][col_i]
-        square_num = square.open()
-        # if square_num < 0:
-        #     # Game over
-        #     pass
+        square.open()
+        square_num = square.get_number()
+        if square_num < 0:
+            return True
         if square_num == 0:
             bounding_indexes = [
                 (row_i - 1, col_i),
@@ -164,15 +164,16 @@ class Board:
             for adjacent_square_row_i, adjacent_square_col_i in bounding_indexes:
                 if self.__check_square_in_bounds(adjacent_square_row_i, adjacent_square_col_i) and not self.__board_object[adjacent_square_row_i][adjacent_square_col_i].get_is_revealed():
                     self.__open_square(adjacent_square_row_i, adjacent_square_col_i)
+        return False
 
-
-                    
 
     def click_board(self, click: Point) -> bool:
         # Determine which square
         row_i, col_i = self.__determine_clicked_square_index(click)
-        is_mine = self.__open_square(row_i, col_i)
-        return is_mine
+        square = self.__board_object[row_i][col_i]
+        if not square.get_is_revealed():
+            return self.__open_square(row_i, col_i)
+        return False
 
         # square = self.__board_object[row_i][col_i]
         # if square.get_is_mine():
@@ -224,11 +225,9 @@ class Square:
         else:
             self.set_fill_color("green")
         self.redraw()
-        num_mined_neighbors = self.get_number()
-        if num_mined_neighbors > 0:
+        if self.get_number() > 0:
             h_size = self.__size // 2
             Text(Point(self.__top_left_x + h_size, self.__top_left_y + h_size), self.get_number()).draw(self.__win)
-        return num_mined_neighbors
     
     def redraw(self) -> None:
         self.__square_graphical_object.undraw()
