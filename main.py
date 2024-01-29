@@ -83,6 +83,7 @@ class Board:
         self.__last_col_i = self.__width // self.__square_size - 1
         self.__board_object = self.__draw_board(self.__width, self.__height, self.__square_size, chance_square_is_mine)
         self.__determine_all_square_numbers()
+        self.__selected_square = None
 
 
     def __draw_board(self, width: int, height: int, square_size: int, chance_square_is_mine: float) -> list[list[Rectangle]]:
@@ -166,23 +167,18 @@ class Board:
                     self.__open_square(adjacent_square_row_i, adjacent_square_col_i)
         return False
 
-
     def click_board(self, click: Point) -> bool:
         # Determine which square
         row_i, col_i = self.__determine_clicked_square_index(click)
         square = self.__board_object[row_i][col_i]
         if not square.get_is_revealed():
+            if self.__selected_square:
+                self.__selected_square.deselect()
+            # square.select()
+            self.__selected_square = square
+            square.select()
             return self.__open_square(row_i, col_i)
         return False
-
-        # square = self.__board_object[row_i][col_i]
-        # if square.get_is_mine():
-        #     square.open()
-        #     return False
-        # self.__test_square_recursion(row_i, col_i)
-        # return True
-        # If square is mine - game over
-        # Else - square.click_square()
 
 
 class Square:
@@ -205,6 +201,7 @@ class Square:
         self.__is_revealed = False
         self.__square_graphical_object.draw(self.__win)
         self.__number = -1
+        self.__is_selected = False
 
     def __determine_if_square_is_mine(self, chance_square_is_mine: float) -> bool:
         return random() < chance_square_is_mine
@@ -231,6 +228,10 @@ class Square:
     
     def redraw(self) -> None:
         self.__square_graphical_object.undraw()
+        if self.__is_selected:
+            self.set_border_color("turquoise")
+        else:
+            self.set_border_color("black")
         self.__square_graphical_object.draw(self.__win)
 
     def get_is_mine(self) -> bool:
@@ -245,6 +246,9 @@ class Square:
     def get_number(self) -> int:
         return self.__number
     
+    def is_selected(self) -> bool:
+        return self.__is_selected
+    
     # Note: set methods do not redraw the square, this must be done seperately
     def set_fill_color(self, new_color: str) -> None:
         self.__square_graphical_object.setFill(new_color)
@@ -255,6 +259,14 @@ class Square:
     def set_number(self, new_number: int) -> None:
         self.__number = new_number
 
+    def select(self):
+        self.__is_selected = True
+        self.redraw()
+    
+    def deselect(self):
+        self.__is_selected = False
+        self.redraw()
+
 
 def main() -> None:
     play_again = True
@@ -264,8 +276,8 @@ def main() -> None:
     # Gameplay loop
         game_object = Game()
         game_object.instantiate_board(
-            board_size= 500,
-            num_squares= 8,
+            board_size= 700,
+            num_squares= 16,
             mine_chance= 0.1
             )
         score = game_object.main_loop()
